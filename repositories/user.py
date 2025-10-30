@@ -2,7 +2,6 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,update
 from models import User
-from settings import ENVIRONMENT
 
 class UserRepository:
 
@@ -11,7 +10,6 @@ class UserRepository:
         database repository for 'User' entity
         '''
         self._db = db
-        self._crypt_context = ENVIRONMENT.CRYPT_CONTEXT
     
     def _user_to_dict(self,user:User) -> dict:
         return {
@@ -31,14 +29,28 @@ class UserRepository:
         )
         return result.scalars().first()
 
-    async def create(self,user:User) -> User:
+    async def get_by_username(self,username:str) -> User | None:
+        '''
+        gets a user by his username
+        '''
+        result = await self._db.execute(
+            select(User).where(User.username==username)
+        )
+        return result.scalars().first()
+    
+    async def create(self,user:User) -> User | None:
         '''
         creates a new User in the database
+
+        returns None if the user wasn't created
         '''
-        self._db.add(user)
-        await self._db.commit()
-        await self._db.refresh(user)
-        return user
+        db_user = await self.get_by_id(user.id)
+        if not db_user:
+            self._db.add(user)
+            await self._db.commit()
+            await self._db.refresh(user)
+            return user
+        return None
     
     async def update(self,user_id:str,user_update:User) -> User | None:
         '''

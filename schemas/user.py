@@ -13,7 +13,7 @@ class UserCreateSchema(UserBaseSchema):
     '''
     password:str
 
-class UserUpdateSchema(UserBaseSchema):
+class UserUpdateSchema(UserCreateSchema):
     '''
     schema for update 'User'
     '''
