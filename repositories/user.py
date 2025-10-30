@@ -1,6 +1,5 @@
-from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select,update
+from sqlalchemy import select
 from models import User
 
 class UserRepository:
@@ -60,47 +59,3 @@ class UserRepository:
             await self._db.refresh(user)
             return user
         return None
-    
-    async def update(self,user_id:str,user_update:User) -> User | None:
-        '''
-        updates the data for the user with the given id and the new given data
-        '''
-        user = await self.get_by_id(user_id)
-        if user is None:
-            return None
-        
-        update_data = self._user_to_dict(user_update)
-        if not update_data is None:
-            await self._db.execute(
-                update(User).where(User.id==user_id).values(**update_data)
-            )
-            await self._db.commit()
-            await self._db.refresh(user)
-        
-        return user
-    
-    async def delete(self,user_id:str) -> bool:
-        '''
-        deletes a user by his id
-        '''
-        user = self.get_by_id(user_id)
-        if user is None:
-            return False
-        
-        await self._db.delete(user)
-        await self._db.commit()
-        return True
-    
-    async def get_all(self,limit:int=100,skip:int=0) -> List[User]:
-        '''
-        gets all the users
-
-        params:
-
-            limit:int -> max number of results in the response
-            skip:int -> number of registers to skip
-        '''
-        result = await self._db.execute(
-            select(User).offset(skip).limit(limit)
-        )
-        return list(result.scalars().all())

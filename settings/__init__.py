@@ -1,3 +1,3 @@
 from .Settings import EnvironmentSettings
 
-ENVIRONMENT = EnvironmentSettings()
+ENVIRONMENT = EnvironmentSettings.get_instance()

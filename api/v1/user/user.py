@@ -2,7 +2,7 @@ from fastapi import APIRouter,HTTPException,status,Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from models import User
-from schemas import UserCreateSchema,UserUpdateSchema,UserSchema,TokenSchema
+from schemas import UserCreateSchema,UserSchema,TokenSchema
 from security import create_access_token,get_current_user
 from settings import ENVIRONMENT
 from services import UserService,get_user_service
@@ -23,7 +23,7 @@ async def register_user(
     status_code=status.HTTP_201_CREATED,
     service:UserService=Depends(get_user_service)
 ):
-    db_user = await service.get_by_username(user.username)
+    db_user = await service.get_by_username(str(user.username))
     if db_user:
         raise USER_ALREADY_EXISTS_ECXCEPTION
     db_user = await service.get_by_email(user.email)

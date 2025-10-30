@@ -27,12 +27,60 @@ class EnvironmentSettings:
         self._sqlalchemy_pool_size:int = int(os.getenv('SQLALCHEMY_POOL_SIZE','pool size for sqlalchemy'))
         self._sqlalchemy_max_overflow:int = int(os.getenv('SQLALCHEMY_MAX_OVERFLOW','max overflow allowed for sqlalchemy'))
         self._sqlalchemy_pool_timeout:int = int(os.getenv('SQLALCHEMY_POOL_TIMEOUT','pool timeout for sqlalchemy'))
+        self._min_username_length:int = int(os.getenv('MIN_USERNAME_LENGTH','min length for the username field'))
+        self._max_username_length:int = int(os.getenv('MAX_USERNAME_LENGTH','max length for the username field'))
+        self._min_user_password_length:int = int(os.getenv('MIN_USER_PASSWORD_LENGTH','min length for the password field'))
+        self._max_user_password_length:int = int(os.getenv('MAX_USER_PASSWORD_LENGTH','max length for the password field'))
+        self._min_post_title_length:int = int(os.getenv('MIN_POST_TITLE_LENGTH','min length for the title field of post entity'))
+        self._max_post_title_length:int = int(os.getenv('MAX_POST_TITLE_LENGTH','max length for the title field of post entity'))
 
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
-        return cls
+        return cls._instance
+
+    @property
+    def MIN_POST_TITLE_LENGTH(self):
+        '''
+        min length for 'title' field of 'post' entity
+        '''
+        return self._min_post_title_length
+    
+    @property
+    def MAX_POST_TITLE_LENGTH(self):
+        '''
+        max length for 'title' field of 'post' entity
+        '''
+        return self._max_post_title_length
+
+    @property
+    def MIN_USER_PASSWORD_LENGTH(self):
+        '''
+        min length for 'password' field
+        '''
+        return self._min_user_password_length
+    
+    @property
+    def MAX_USER_PASSWORD_LENGTH(self):
+        '''
+        max length for 'password' field
+        '''
+        return self._max_user_password_length
+
+    @property
+    def MIN_USERNAME_LENGTH(self):
+        '''
+        min length for 'username' field
+        '''
+        return self._min_username_length
+    
+    @property
+    def MAX_USERNAME_LENGTH(self):
+        '''
+        min length for 'username' field
+        '''
+        return self._max_username_length
 
     @property
     def SQLALCHEMY_POOL_SIZE(self) -> int:
