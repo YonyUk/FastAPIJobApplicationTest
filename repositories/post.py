@@ -14,7 +14,11 @@ class PostRepository:
         return {
             'id':post.id,
             'title':post.title,
-            'content':post.content
+            'content':post.content,
+            'created_at':post.created_at,
+            'updated_at':post.updated_at,
+            'is_deleted':post.is_deleted,
+            'deleted_at':post.deleted_at
         }
     
     async def get_by_id(self,post_id:str) -> Post | None:
@@ -24,7 +28,16 @@ class PostRepository:
         result = await self._db.execute(
             select(Post).where(Post.id==post_id)
         )
-        return result.scalars().first()
+        return result.scalar_one_or_none()
+    
+    async def get_by_title(self,post_title:str) -> Post | None:
+        '''
+        gets a post by it's title
+        '''
+        result = await self._db.execute(
+            select(Post).where(Post.title==post_title)
+        )
+        return result.scalar_one_or_none()
 
     async def create(self,post:Post) -> Post | None:
         '''
@@ -49,12 +62,11 @@ class PostRepository:
             return None
         
         update_data = self._post_to_dict(post_update)
-        if not update_data is None:
-            await self._db.execute(
-                update(Post).where(Post.id==post_id).values(**update_data)
-            )
-            await self._db.commit()
-            await self._db.refresh(db_post)
+        await self._db.execute(
+            update(Post).where(Post.id==post_id).values(**update_data)
+        )
+        await self._db.commit()
+        await self._db.refresh(db_post)
         
         return db_post
     
@@ -62,4 +74,11 @@ class PostRepository:
         '''
         deletes a post
         '''
-        raise NotImplementedError()
+        db_post = await self.get_by_id(post_id)
+        if db_post is None:
+            return False
+        
+        db_post.soft_delete()
+        await self._db.commit()
+        await self._db.refresh(db_post)
+        return True

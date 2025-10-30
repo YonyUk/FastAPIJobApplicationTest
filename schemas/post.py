@@ -12,7 +12,18 @@ class PostBaseSchema(BaseModel):
     content:Annotated[str,StringConstraints(min_length=1)]
     author_name:Annotated[str,StringConstraints(min_length=ENVIRONMENT.MIN_USERNAME_LENGTH,max_length=ENVIRONMENT.MAX_USERNAME_LENGTH)]
 
+class PostCreateSchema(PostBaseSchema):
+    '''
+    schema for create post
+    '''
+
+class PostUpdateSchema(PostBaseSchema):
+    '''
+    schema for update post
+    '''
+
 class PostSchema(PostBaseSchema,TimestampSchema):
     '''
     schema for 'Post'
     '''
+    id:str

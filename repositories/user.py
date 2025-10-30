@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select,update
 from models import User
 
 class UserRepository:
@@ -10,6 +10,18 @@ class UserRepository:
         '''
         self._db = db
     
+    def _user_to_dict(self,user:User) -> dict:
+        return {
+            'id':user.id,
+            'username':user.username,
+            'email':user.email,
+            'hashed_password':user.hashed_password,
+            'created_at':user.created_at,
+            'updated_at':user.updated_at,
+            'is_deleted':user.is_deleted,
+            'deleted_at':user.deleted_at
+        }
+
     async def get_by_id(self,user_id:str) -> User | None:
         '''
         gets a user by his id
@@ -17,7 +29,7 @@ class UserRepository:
         result = await self._db.execute(
             select(User).where(User.id==user_id)
         )
-        return result.scalars().first()
+        return result.scalar_one_or_none()
 
     async def get_by_username(self,username:str) -> User | None:
         '''
@@ -26,7 +38,7 @@ class UserRepository:
         result = await self._db.execute(
             select(User).where(User.username==username)
         )
-        return result.scalars().first()
+        return result.scalar_one_or_none()
     
     async def get_by_email(self,email:str) -> User | None:
         '''
@@ -35,7 +47,7 @@ class UserRepository:
         result = await self._db.execute(
             select(User).where(User.email==email)
         )
-        return result.scalars().first()
+        return result.scalar_one_or_none()
     
     async def create(self,user:User) -> User | None:
         '''
@@ -50,3 +62,33 @@ class UserRepository:
             await self._db.refresh(user)
             return user
         return None
+    
+    async def update(self,user_id:str,user_update:User) -> User | None:
+        '''
+        updates a 'User' in the database
+        '''
+        db_user = await self.get_by_id(user_id)
+        if db_user is None:
+            return None
+        
+        update_data = self._user_to_dict(user_update)
+        await self._db.execute(
+            update(User).where(User.id==user_id).values(**update_data)
+        )
+        await self._db.commit()
+        await self._db.refresh(db_user)
+
+        return db_user
+    
+    async def delete(self,user_id:str) -> bool:
+        '''
+        deletes a 'User'
+        '''
+        db_user = await self.get_by_id(user_id)
+        if db_user is None:
+            return False
+        db_user.soft_delete()
+        await self._db.commit()
+        await self._db.refresh(db_user)
+
+        return True

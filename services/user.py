@@ -1,6 +1,6 @@
 from repositories import UserRepository
 from models import User
-from schemas import UserCreateSchema
+from schemas import UserCreateSchema,UserUpdateSchema
 from settings import ENVIRONMENT
 
 class UserService:
@@ -15,7 +15,7 @@ class UserService:
     # gets the user instance
     def _get_user_instance(
         self,
-        user:UserCreateSchema,
+        user:UserCreateSchema | UserUpdateSchema,
         user_id:str | None = None
     ) -> User:
         db_user = User(
@@ -65,3 +65,16 @@ class UserService:
         gets a user by his email
         '''
         return await self._repository.get_by_email(email)
+    
+    async def update(self,user_id:str,user_update:UserUpdateSchema) -> User | None:
+        '''
+        updates a user
+        '''
+        user = self._get_user_instance(user_update)
+        return await self._repository.update(user_id,user)
+    
+    async def delete(self,user_id:str) -> bool:
+        '''
+        deletes a user
+        '''
+        return await self._repository.delete(user_id)
