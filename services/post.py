@@ -19,26 +19,26 @@ class PostService:
         )
         return post
 
-    async def get_by_id(self,post_id:str) -> Post:
+    async def get_by_id(self,post_id:str) -> Post | None:
         '''
         gets a post by it's id
         '''
         return await self._repository.get_by_id(post_id)
     
-    async def get_by_title(self,post_title:str) -> Post:
+    async def get_by_title(self,post_title:str) -> Post | None:
         '''
         gets a post by it's title
         '''
         return await self._repository.get_by_title(post_title)
 
-    async def create(self,post:PostCreateSchema) -> Post:
+    async def create(self,post:PostCreateSchema) -> Post | None:
         '''
         creates a post
         '''
         db_post = self._get_post_instance(post)
         return await self._repository.create(db_post)
     
-    async def update(self,post_id:str,post_update:PostUpdateSchema) -> Post:
+    async def update(self,post_id:str,post_update:PostUpdateSchema) -> Post | None:
         '''
         update a post
         '''

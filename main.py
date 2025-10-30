@@ -8,6 +8,7 @@ import asyncio
 
 from database import ENGINE,BaseModel
 from api.v1.user import user
+from api.v1.post import post
 from settings import ENVIRONMENT
 
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +40,7 @@ async def shutdown():
     await ENGINE.dispose()
 
 app.include_router(user.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
+app.include_router(post.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
 
 @app.exception_handler(404)
 async def not_found_exception_handler(request,exc):
