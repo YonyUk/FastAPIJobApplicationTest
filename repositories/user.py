@@ -38,6 +38,15 @@ class UserRepository:
         )
         return result.scalars().first()
     
+    async def get_by_email(self,email:str) -> User | None:
+        '''
+        gets a user by his email
+        '''
+        result = await self._db.execute(
+            select(User).where(User.email==email)
+        )
+        return result.scalars().first()
+    
     async def create(self,user:User) -> User | None:
         '''
         creates a new User in the database

@@ -84,3 +84,9 @@ class UserService:
             skip:int -> number of registers to skip
         '''
         return await self._repository.get_all(limit,skip)
+    
+    async def get_by_email(self,email:str) -> User | None:
+        '''
+        gets a user by his email
+        '''
+        return await self._repository.get_by_email(email)
