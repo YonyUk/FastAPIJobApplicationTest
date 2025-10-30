@@ -17,7 +17,7 @@ class PostRepository:
             'content':post.content,
             'created_at':post.created_at,
             'updated_at':post.updated_at,
-            'is_deleted':post.is_deleted,
+            'is_deleted':post.is_deleted if not post.is_deleted is None else False,
             'deleted_at':post.deleted_at
         }
     

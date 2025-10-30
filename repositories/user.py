@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,update
 from models import User
@@ -18,7 +19,7 @@ class UserRepository:
             'hashed_password':user.hashed_password,
             'created_at':user.created_at,
             'updated_at':user.updated_at,
-            'is_deleted':user.is_deleted,
+            'is_deleted':user.is_deleted if user.is_deleted is not None else False,
             'deleted_at':user.deleted_at
         }
 
@@ -48,6 +49,15 @@ class UserRepository:
             select(User).where(User.email==email)
         )
         return result.scalar_one_or_none()
+    
+    async def get_all(self) -> List[User]:
+        '''
+        gets all the users
+        '''
+        result = await self._db.execute(
+            select(User)
+        )
+        return list(result.scalars().all())
     
     async def create(self,user:User) -> User | None:
         '''

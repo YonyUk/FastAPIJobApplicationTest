@@ -1,8 +1,9 @@
+from typing import List
 from fastapi import APIRouter,HTTPException,status,Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from models import User
-from schemas import UserCreateSchema,UserSchema,TokenSchema
+from schemas import UserCreateSchema,UserSchema,TokenSchema,UserUpdateSchema
 from security import create_access_token,get_current_user
 from settings import ENVIRONMENT
 from services import UserService,get_user_service
@@ -53,3 +54,86 @@ async def login_for_access_token(
         expires_delta=access_token_expires
     )
     return {'access_token':access_token,'token_type':'bearer'}
+
+@router.get(
+    '/',
+    response_model=List[UserSchema]
+)
+async def get_users(
+    service:UserService=Depends(get_user_service)
+):
+    return await service.get_all()
+
+@router.get(
+    '/id/{user_id}',
+    response_model=UserSchema
+)
+async def get_by_id(
+    user_id:str,
+    service:UserService=Depends(get_user_service)
+):
+    db_user = await service.get_by_id(user_id)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'Not user with id "{user_id}" found'
+        )
+    return db_user
+
+@router.get(
+    '/username/{username}',
+    response_model=UserSchema
+)
+async def get_by_username(
+    username:str,
+    service:UserService=Depends(get_user_service)
+):
+    db_user = await service.get_by_username(username)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'Not user with username "{username}" found'
+        )
+    return db_user
+
+@router.get(
+    '/email/{email}',
+    response_model=UserSchema
+)
+async def get_by_email(
+    email:str,
+    service:UserService=Depends(get_user_service)
+):
+    db_user = await service.get_by_email(email)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'Not user with email "{email}" found'
+        )
+    return db_user
+
+@router.put(
+    '/update',
+    response_model=UserSchema
+)
+async def update_user(
+    user_update:UserUpdateSchema,
+    service:UserService=Depends(get_user_service),
+    current_user:User=Depends(get_current_user)
+):
+    if not current_user.username == user_update.username:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Only can modify your own data'
+        )
+    return await service.update(current_user.id,user_update)
+
+@router.delete(
+    '/delete'
+)
+async def delete_user(
+    service:UserService=Depends(get_user_service),
+    current_user:User=Depends(get_current_user)
+):
+    result = await service.delete(current_user.id)
+    return {'messsage':'user deleted' if result else 'user was not deleted'}

@@ -1,3 +1,4 @@
+from typing import List
 from repositories import UserRepository
 from models import User
 from schemas import UserCreateSchema,UserUpdateSchema
@@ -18,13 +19,21 @@ class UserService:
         user:UserCreateSchema | UserUpdateSchema,
         user_id:str | None = None
     ) -> User:
-        db_user = User(
+        if isinstance(user,UserUpdateSchema):
+            return User(
+                id=user_id,
+                username=user.username,
+                email=user.email,
+                hashed_password=self._crypt_context.hash(str(user.password)),
+                created_at=user.created_at,
+                updated_at=user.updated_at
+            )
+        return User(
             id=user_id,
             username=user.username,
             email=user.email,
-            hashed_password=self._crypt_context.hash(str(user.password))
+            hashed_password=self._crypt_context.hash(str(user.password)),
         )
-        return db_user
     
     async def authenticate_user(self,username:str,password:str) -> User | None:
         '''
@@ -66,11 +75,17 @@ class UserService:
         '''
         return await self._repository.get_by_email(email)
     
+    async def get_all(self) -> List[User]:
+        '''
+        gets all the users
+        '''
+        return await self._repository.get_all()
+    
     async def update(self,user_id:str,user_update:UserUpdateSchema) -> User | None:
         '''
         updates a user
         '''
-        user = self._get_user_instance(user_update)
+        user = self._get_user_instance(user_update,user_id)
         return await self._repository.update(user_id,user)
     
     async def delete(self,user_id:str) -> bool:
