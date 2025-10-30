@@ -8,6 +8,8 @@ class EnvironmentSettings:
     '''
     container class for the environment variables
     '''
+    _instance = None
+
     def __init__(self):
         self._db_engine:str = os.getenv('DB_ENGINE','database engine')
         self._db_user:str = os.getenv('DB_USER','database user')
@@ -25,6 +27,12 @@ class EnvironmentSettings:
         self._sqlalchemy_pool_size:int = int(os.getenv('SQLALCHEMY_POOL_SIZE','pool size for sqlalchemy'))
         self._sqlalchemy_max_overflow:int = int(os.getenv('SQLALCHEMY_MAX_OVERFLOW','max overflow allowed for sqlalchemy'))
         self._sqlalchemy_pool_timeout:int = int(os.getenv('SQLALCHEMY_POOL_TIMEOUT','pool timeout for sqlalchemy'))
+
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls
 
     @property
     def SQLALCHEMY_POOL_SIZE(self) -> int:
