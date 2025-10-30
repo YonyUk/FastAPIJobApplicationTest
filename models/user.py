@@ -2,8 +2,9 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped,mapped_column
 from uuid import uuid4
 from database import BaseModel
+from .mixins import TimestampMixin,SoftDeleteMixin
 
-class User(BaseModel):
+class User(BaseModel,TimestampMixin,SoftDeleteMixin):
     '''
     Represents an 'user' entity in the database
     '''

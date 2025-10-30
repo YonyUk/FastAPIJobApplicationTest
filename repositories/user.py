@@ -10,15 +10,6 @@ class UserRepository:
         '''
         self._db = db
     
-    def _user_to_dict(self,user:User) -> dict:
-        return {
-            'id':user.id,
-            'username':user.username,
-            'email':user.email,
-            'hashed_password':user.hashed_password,
-            'admin':user.admin
-        }
-    
     async def get_by_id(self,user_id:str) -> User | None:
         '''
         gets a user by his id

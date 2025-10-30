@@ -2,8 +2,9 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped,mapped_column
 from uuid import uuid4
 from database import BaseModel
+from .mixins import TimestampMixin,SoftDeleteMixin
 
-class Post(BaseModel):
+class Post(BaseModel,TimestampMixin,SoftDeleteMixin):
     '''
     Represent a 'post' entity in the database
     '''
