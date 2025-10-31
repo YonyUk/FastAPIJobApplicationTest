@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from database import BaseModel
-from models import User,Post
+from models import User,Post,Comment
 target_metadata = BaseModel.metadata
 
 # other values from the config, defined by the needs of env.py,
