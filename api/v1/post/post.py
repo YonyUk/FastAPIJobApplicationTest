@@ -91,7 +91,7 @@ async def update_post(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Only can modify posts of your own'
         )
-    db_post = await service.update(post_id,current_user.username,post_update)
+    db_post = await service.update(post_id,post_update)
     if db_post is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
