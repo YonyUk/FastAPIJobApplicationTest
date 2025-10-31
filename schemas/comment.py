@@ -1,7 +1,6 @@
 from typing import Annotated
 from pydantic import BaseModel
 from pydantic.types import StringConstraints
-from settings import ENVIRONMENT
 from .mixins import TimestampSchema
 
 class CommentBaseSchema(BaseModel):
