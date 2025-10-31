@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import Sequence
 from repositories import UserRepository
 from models import User
 from schemas import UserCreateSchema,UserUpdateSchema,UserSchema

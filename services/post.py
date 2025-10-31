@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import Sequence
 from repositories import PostRepository
 from models import Post
 from schemas import PostCreateSchema,PostUpdateSchema,PostSchema
@@ -12,7 +12,7 @@ class PostService:
         self._repository = repository
 
     def _get_post_instance(
-        self,author_name:str,
+        self,author_id:str,
         post:PostCreateSchema | PostUpdateSchema,
         post_id:str | None = None
     ) -> Post:
@@ -20,7 +20,7 @@ class PostService:
             id=post_id,
             title=post.title,
             content=post.content,
-            author_name=author_name
+            author_id=author_id
         )
         
 
@@ -46,21 +46,21 @@ class PostService:
         '''
         return await self._repository.get_all(limit,skip)
     
-    async def create(self,author_name:str,post:PostCreateSchema) -> PostSchema | None:
+    async def create(self,author_id:str,post:PostCreateSchema) -> PostSchema | None:
         '''
         creates a post
         '''
-        db_post = self._get_post_instance(author_name,post)
+        db_post = self._get_post_instance(author_id,post)
         return await self._repository.create(db_post)
     
-    async def update(self,post_id:str,author_name:str,post_update:PostUpdateSchema) -> PostSchema | None:
+    async def update(self,post_id:str,post_update:PostUpdateSchema) -> PostSchema | None:
         '''
         update a post
         '''
         post = await self._repository.get_by_id(post_id)
         if post is None:
             return None
-        db_post = self._get_post_instance(author_name,post_update,post_id)
+        db_post = self._get_post_instance(post.author_id,post_update,post_id)
         db_post.created_at = post.created_at
         db_post.updated_at = post.updated_at
         return await self._repository.update(post_id,db_post)
