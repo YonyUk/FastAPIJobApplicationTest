@@ -26,4 +26,7 @@ class PostSchema(PostBaseSchema,TimestampSchema):
     schema for 'Post'
     '''
     id:str
-    author_name:Annotated[str,StringConstraints(min_length=ENVIRONMENT.MIN_USERNAME_LENGTH,max_length=ENVIRONMENT.MAX_USERNAME_LENGTH)]
+    author_id:str
+    
+    class Config:
+        orm_mode = True

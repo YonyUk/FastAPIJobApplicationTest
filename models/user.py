@@ -1,5 +1,5 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped,mapped_column
+from sqlalchemy.orm import Mapped,mapped_column,relationship
 from uuid import uuid4
 from database import BaseModel
 from .mixins import TimestampMixin,SoftDeleteMixin
@@ -14,3 +14,9 @@ class User(BaseModel,TimestampMixin,SoftDeleteMixin):
     username:Mapped[str] = mapped_column(String,unique=True,nullable=False,index=True)
     email:Mapped[str] = mapped_column(String,unique=True,index=True,nullable=False)
     hashed_password:Mapped[str] = mapped_column(String,nullable=False)
+
+    # OneToMany: A user can have many posts
+    posts = relationship('Post',back_populates='author',cascade='all, delete-orphan')
+
+    # OneToMany: A user can have many comments
+    comments = relationship('Comment',back_populates='author',cascade='all, delete-orphan')

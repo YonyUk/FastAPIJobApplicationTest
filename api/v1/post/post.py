@@ -86,7 +86,7 @@ async def update_post(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not post with id "{post_id}" found'
         )
-    if not db_post.author_name == current_user.username:
+    if not db_post.author_id == current_user.username:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Only can modify posts of your own'
@@ -114,7 +114,7 @@ async def delete(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not post with id "{post_id}" found'
         )
-    if not db_post.author_name == current_user.username:
+    if not db_post.author_id == current_user.username:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Only can delete posts of your own'

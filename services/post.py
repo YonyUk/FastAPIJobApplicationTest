@@ -46,16 +46,6 @@ class PostService:
         '''
         return await self._repository.get_all(limit,skip)
     
-    async def get_by_author_name(self,author_name:str,limit:int=100,skip:int=0) -> Sequence[PostSchema]:
-        '''
-        gets the posts by its author_name field
-
-        params:
-            limit:int -> limit of results by response
-            skip:int -> number of registers to skip
-        '''
-        return await self._repository.get_by_author_name(author_name,limit,skip)
-
     async def create(self,author_name:str,post:PostCreateSchema) -> PostSchema | None:
         '''
         creates a post
