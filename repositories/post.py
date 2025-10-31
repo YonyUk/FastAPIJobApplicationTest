@@ -100,7 +100,7 @@ class PostRepository:
             await self._db.refresh(post)
             return post
         elif db_post.is_deleted:
-            db_post.is_deleted = False
+            db_post.restore()
             update_data = self._post_to_dict(db_post)
             await self._db.execute(
                 update(Post).where(Post.id==db_post.id).values(**update_data)

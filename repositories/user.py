@@ -1,6 +1,6 @@
-from typing import List, Sequence
+from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import Result, Tuple, select,update
+from sqlalchemy import select,update
 from models import User
 
 class UserRepository:
@@ -109,7 +109,7 @@ class UserRepository:
             await self._db.refresh(user)
             return user
         elif db_user.is_deleted:
-            db_user.is_deleted = False
+            db_user.restore()
             update_data = self._user_to_dict(db_user)
             await self._db.execute(
                 update(User).where(User.id==db_user.id).values(**update_data)
