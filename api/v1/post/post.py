@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter,HTTPException,status,Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
@@ -26,4 +27,15 @@ async def create_post(
             status_code=status.HTTP_409_CONFLICT,
             detail=f'A post with title "{post.title}" already exists'
         )
-    return await service.create(post)
+    return await service.create(current_user.username,post)
+
+@router.get(
+    '/',
+    status_code=status.HTTP_200_OK,
+    response_model=List[PostSchema]
+)
+async def get_posts(
+    status_code=status.HTTP_200_OK,
+    service:PostService=Depends(get_post_service)
+):
+    return await service.get_all()

@@ -14,3 +14,4 @@ class Post(BaseModel,TimestampMixin,SoftDeleteMixin):
     id:Mapped[str] = mapped_column(String,primary_key=True,default=lambda:str(uuid4()))
     title:Mapped[str] = mapped_column(String,unique=True,nullable=False,index=True)
     content:Mapped[str] = mapped_column(String,nullable=False)
+    author_name:Mapped[str] = mapped_column(String,nullable=False)

@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,update
 from models import Post
@@ -71,6 +72,20 @@ class PostRepository:
             select(Post).where((Post.title==post_title) & (Post.is_deleted != True))
         )
         return result.scalar_one_or_none()
+
+    async def get_all(self,limit:int=100,skip:int=0) -> List[Post]:
+        '''
+        gets all the posts
+
+        params:
+
+            limit:int -> limit of results by response
+            skip:int -> number of registers to skip
+        '''
+        result = await self._db.execute(
+            select(Post).where(Post.is_deleted != True).offset(skip).limit(limit)
+        )
+        return list(result.scalars().all())
 
     async def create(self,post:Post) -> Post | None:
         '''
