@@ -1,8 +1,15 @@
-from sqlalchemy import String,ForeignKey
+from sqlalchemy import Column, String,ForeignKey,Table
 from sqlalchemy.orm import Mapped,mapped_column,relationship
 from uuid import uuid4
 from database import BaseModel
 from .mixins import TimestampMixin,SoftDeleteMixin
+
+posts_tags = Table(
+    'posts_tags',
+    BaseModel.metadata,
+    Column('post_id',String,ForeignKey('posts.id',ondelete='CASCADE')),
+    Column('tag_id',String,ForeignKey('tags.id',ondelete='CASCADE'))
+)
 
 class Post(BaseModel,TimestampMixin,SoftDeleteMixin):
     '''
@@ -16,5 +23,8 @@ class Post(BaseModel,TimestampMixin,SoftDeleteMixin):
     content:Mapped[str] = mapped_column(String,nullable=False)
     author_id:Mapped[str] = mapped_column(String,ForeignKey('users.id',ondelete='CASCADE'),nullable=False)
 
-    # ManyToOne: A comment have only one author
     author = relationship('User',back_populates='posts')
+
+    comments = relationship('Comment',back_populates='post',cascade='all, delete-orphan')
+
+    tags = relationship('Tag',back_populates='posts',secondary=posts_tags)

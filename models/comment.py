@@ -12,7 +12,9 @@ class Comment(BaseModel,TimestampMixin,SoftDeleteMixin):
 
     id:Mapped[str] = mapped_column(String,primary_key=True,default=lambda:str(uuid4()))
     content:Mapped[str] = mapped_column(String(255),nullable=False)
-    author_id:Mapped[str] = mapped_column(String,nullable=False)
+    author_id:Mapped[str] = mapped_column(String,ForeignKey('users.id',ondelete='CASCADE'),nullable=False)
+    post_id:Mapped[str] = mapped_column(String,ForeignKey('posts.id',ondelete='CASCADE'),nullable=False)
 
-    # ManytoOne: One comment have only one author
     author = relationship('User',back_populates='comments')
+
+    post = relationship('Post',back_populates='comments')

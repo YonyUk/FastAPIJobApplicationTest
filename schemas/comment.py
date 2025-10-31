@@ -26,6 +26,7 @@ class CommentSchema(CommentBaseSchema,TimestampSchema):
     '''
     id:str
     author_id:str
+    post_id:str
     
     class Config:
         orm_mod = True

@@ -15,8 +15,6 @@ class User(BaseModel,TimestampMixin,SoftDeleteMixin):
     email:Mapped[str] = mapped_column(String,unique=True,index=True,nullable=False)
     hashed_password:Mapped[str] = mapped_column(String,nullable=False)
 
-    # OneToMany: A user can have many posts
     posts = relationship('Post',back_populates='author',cascade='all, delete-orphan')
 
-    # OneToMany: A user can have many comments
     comments = relationship('Comment',back_populates='author',cascade='all, delete-orphan')
