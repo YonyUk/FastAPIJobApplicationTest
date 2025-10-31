@@ -14,7 +14,6 @@ router = APIRouter(prefix='/posts',tags=['posts'])
 )
 async def create_post(
     post:PostCreateSchema,
-    status_code=status.HTTP_201_CREATED,
     service:PostService=Depends(get_post_service),
     current_user:User=Depends(get_current_user)
 ):
@@ -32,7 +31,6 @@ async def create_post(
     response_model=Sequence[PostSchema]
 )
 async def get_posts(
-    status_code=status.HTTP_200_OK,
     service:PostService=Depends(get_post_service)
 ):
     return await service.get_all()
@@ -44,7 +42,6 @@ async def get_posts(
 )
 async def get_by_id(
     post_id:str,
-    status_code=status.HTTP_200_OK,
     service:PostService=Depends(get_post_service)
 ):
     db_post = await service.get_by_id(post_id)
@@ -62,7 +59,6 @@ async def get_by_id(
 )
 async def get_by_title(
     post_title:str,
-    status_code=status.HTTP_200_OK,
     service:PostService=Depends(get_post_service)
 ):
     db_post = await service.get_by_title(post_title)

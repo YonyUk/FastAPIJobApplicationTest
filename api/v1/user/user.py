@@ -21,7 +21,6 @@ router = APIRouter(prefix='/users',tags=['users'])
 )
 async def register_user(
     user:UserCreateSchema,
-    status_code=status.HTTP_201_CREATED,
     service:UserService=Depends(get_user_service)
 ):
     db_user = await service.get_by_username(str(user.username))
