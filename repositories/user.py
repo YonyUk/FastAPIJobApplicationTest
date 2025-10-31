@@ -108,7 +108,7 @@ class UserRepository:
             await self._db.commit()
             await self._db.refresh(user)
             return user
-        else:
+        elif db_user.is_deleted:
             db_user.is_deleted = False
             update_data = self._user_to_dict(db_user)
             await self._db.execute(
@@ -117,6 +117,8 @@ class UserRepository:
             await self._db.commit()
             await self._db.refresh(db_user)
             return db_user
+        else:
+            return None
     
     async def update(self,user_id:str,user_update:User) -> User | None:
         '''
