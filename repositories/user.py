@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select,update
+from sqlalchemy import Result, Tuple, select,update
 from models import User
 
 class UserRepository:
@@ -23,12 +23,49 @@ class UserRepository:
             'deleted_at':user.deleted_at
         }
 
+    async def get_user_ignore_deleted(self,user:User) -> User | None:
+        '''
+        gets a user for any of his unique fields ignoring if he was deleted
+        '''
+        result = None
+        if not user.id is None:
+            result = await self._db.execute(
+                select(User).where(User.id == user.id)
+            )
+        elif not user.username is None:
+            result = await self._db.execute(
+                select(User).where(User.username == user.username)
+            )
+        else:
+            result = await self._db.execute(
+                select(User).where(User.email==user.email)
+            )
+        return result.scalar_one_or_none()
+
+    async def get_by_id_ignore_deleted(self,user_id:str) -> User | None:
+        '''
+        gets a user by his id ignoring if he was deleted
+        '''
+        result = await self._db.execute(
+            select(User).where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()
+    
+    async def get_by_username_ignore_deleted(self,username:str) -> User | None:
+        '''
+        gets a user by his username ignoring if he was deleted
+        '''
+        result = await self._db.execute(
+            select(User).where(User.username == username)
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_id(self,user_id:str) -> User | None:
         '''
         gets a user by his id
         '''
         result = await self._db.execute(
-            select(User).where(User.id==user_id)
+            select(User).where((User.id==user_id) & (User.is_deleted != True))
         )
         return result.scalar_one_or_none()
 
@@ -37,7 +74,7 @@ class UserRepository:
         gets a user by his username
         '''
         result = await self._db.execute(
-            select(User).where(User.username==username)
+            select(User).where((User.is_deleted != True) & (User.username==username))
         )
         return result.scalar_one_or_none()
     
@@ -46,7 +83,7 @@ class UserRepository:
         gets a user by his email
         '''
         result = await self._db.execute(
-            select(User).where(User.email==email)
+            select(User).where((User.email==email) & (User.is_deleted != True))
         )
         return result.scalar_one_or_none()
     
@@ -55,7 +92,7 @@ class UserRepository:
         gets all the users
         '''
         result = await self._db.execute(
-            select(User)
+            select(User).where(User.is_deleted != True)
         )
         return list(result.scalars().all())
     
@@ -65,13 +102,21 @@ class UserRepository:
 
         returns None if the user wasn't created
         '''
-        db_user = await self.get_by_id(user.id)
+        db_user = await self.get_user_ignore_deleted(user)
         if not db_user:
             self._db.add(user)
             await self._db.commit()
             await self._db.refresh(user)
             return user
-        return None
+        else:
+            db_user.is_deleted = False
+            update_data = self._user_to_dict(db_user)
+            await self._db.execute(
+                update(User).where(User.id==db_user.id).values(**update_data)
+            )
+            await self._db.commit()
+            await self._db.refresh(db_user)
+            return db_user
     
     async def update(self,user_id:str,user_update:User) -> User | None:
         '''
@@ -83,7 +128,7 @@ class UserRepository:
         
         update_data = self._user_to_dict(user_update)
         await self._db.execute(
-            update(User).where(User.id==user_id).values(**update_data)
+            update(User).where((User.id==user_id) & (User.is_deleted != True)).values(**update_data)
         )
         await self._db.commit()
         await self._db.refresh(db_user)

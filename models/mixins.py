@@ -28,7 +28,7 @@ class SoftDeleteMixin:
         marks this element as deleted
         '''
         self.is_deleted = True
-        self.deleted_at = lambda:datetime.now(timezone.utc)
+        self.deleted_at = datetime.now(timezone.utc)
     
     def restore(self):
         '''
