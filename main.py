@@ -10,6 +10,7 @@ from database import ENGINE,BaseModel
 from api.v1.user import user
 from api.v1.post import post
 from api.v1.comment import comment
+from api.v1.tag import tag
 from settings import ENVIRONMENT
 
 logging.basicConfig(level=logging.INFO)
@@ -43,6 +44,7 @@ async def shutdown():
 app.include_router(user.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
 app.include_router(post.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
 app.include_router(comment.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
+app.include_router(tag.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
 
 @app.exception_handler(404)
 async def not_found_exception_handler(request,exc):
