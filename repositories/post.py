@@ -86,6 +86,20 @@ class PostRepository:
             select(Post).where(Post.is_deleted != True).offset(skip).limit(limit)
         )
         return list(result.scalars().all())
+    
+    async def get_by_author_name(self,author_name:str,limit:int=100,skip:int=0) -> List[Post]:
+        '''
+        gets posts by its author_name field
+
+        params:
+            limit:int -> limit of results by response
+            skip:int -> number of registers to skip
+        '''
+        result = await self._db.execute(
+            select(Post).where((Post.is_deleted != True) & (Post.author_name == author_name))
+            .offset(skip).limit(limit)
+        )
+        return list(result.scalars().all())
 
     async def create(self,post:Post) -> Post | None:
         '''
@@ -115,11 +129,8 @@ class PostRepository:
         '''
         updates a 'Post' in the database
         '''
-        db_post = await self.get_by_id(post_id)
-        if db_post is None:
-            return None
-        
         update_data = self._post_to_dict(post_update)
+        db_post = await self.get_by_id(post_id)
         await self._db.execute(
             update(Post).where((Post.id==post_id) & (Post.is_deleted != True)).values(**update_data)
         )

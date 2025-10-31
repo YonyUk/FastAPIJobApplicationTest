@@ -65,7 +65,7 @@ async def get_users(
     return await service.get_all()
 
 @router.get(
-    '/id/{user_id}',
+    '/{user_id}',
     response_model=UserSchema
 )
 async def get_by_id(
@@ -114,7 +114,8 @@ async def get_by_email(
 
 @router.put(
     '/update',
-    response_model=UserSchema
+    response_model=UserSchema,
+    status_code=status.HTTP_202_ACCEPTED
 )
 async def update_user(
     user_update:UserUpdateSchema,
@@ -129,7 +130,8 @@ async def update_user(
     return await service.update(current_user.id,user_update)
 
 @router.delete(
-    '/delete'
+    '/delete',
+    status_code=status.HTTP_202_ACCEPTED
 )
 async def delete_user(
     service:UserService=Depends(get_user_service),

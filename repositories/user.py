@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import Result, Tuple, select,update
 from models import User
@@ -87,14 +87,14 @@ class UserRepository:
         )
         return result.scalar_one_or_none()
     
-    async def get_all(self) -> List[User]:
+    async def get_all(self) -> Sequence[User]:
         '''
         gets all the users
         '''
         result = await self._db.execute(
             select(User).where(User.is_deleted != True)
         )
-        return list(result.scalars().all())
+        return result.scalars().all()
     
     async def create(self,user:User) -> User | None:
         '''
@@ -128,6 +128,8 @@ class UserRepository:
         if db_user is None:
             return None
         
+        user_update.created_at = db_user.created_at
+        user_update.updated_at = db_user.updated_at
         update_data = self._user_to_dict(user_update)
         await self._db.execute(
             update(User).where((User.id==user_id) & (User.is_deleted != True)).values(**update_data)

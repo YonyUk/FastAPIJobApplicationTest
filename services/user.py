@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Sequence
 from repositories import UserRepository
 from models import User
-from schemas import UserCreateSchema,UserUpdateSchema
+from schemas import UserCreateSchema,UserUpdateSchema,UserSchema
 from settings import ENVIRONMENT
 
 class UserService:
@@ -24,9 +24,7 @@ class UserService:
                 id=user_id,
                 username=user.username,
                 email=user.email,
-                hashed_password=self._crypt_context.hash(str(user.password)),
-                created_at=user.created_at,
-                updated_at=user.updated_at
+                hashed_password=self._crypt_context.hash(str(user.password))
             )
         return User(
             id=user_id,
@@ -35,7 +33,7 @@ class UserService:
             hashed_password=self._crypt_context.hash(str(user.password)),
         )
     
-    async def authenticate_user(self,username:str,password:str) -> User | None:
+    async def authenticate_user(self,username:str,password:str) -> UserSchema | None:
         '''
         authenticates a user
 
@@ -48,7 +46,7 @@ class UserService:
             return None
         return user
     
-    async def create(self,user:UserCreateSchema) -> User | None:
+    async def create(self,user:UserCreateSchema) -> UserSchema | None:
         '''
         creates a new 'User' in the repository
 
@@ -57,25 +55,25 @@ class UserService:
         db_user = self._get_user_instance(user)
         return await self._repository.create(db_user)
     
-    async def get_by_username(self,username:str) -> User | None:
+    async def get_by_username(self,username:str) -> UserSchema | None:
         '''
         gets a user by his username
         '''
         return await self._repository.get_by_username(username)
     
-    async def get_by_id(self,user_id:str) -> User | None:
+    async def get_by_id(self,user_id:str) -> UserSchema | None:
         '''
         gets a user by his id
         '''
         return await self._repository.get_by_id(user_id)
     
-    async def get_by_email(self,email:str) -> User | None:
+    async def get_by_email(self,email:str) -> UserSchema | None:
         '''
         gets a user by his email
         '''
         return await self._repository.get_by_email(email)
     
-    async def get_all(self) -> List[User]:
+    async def get_all(self) -> Sequence[UserSchema]:
         '''
         gets all the users
         '''
