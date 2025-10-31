@@ -51,7 +51,8 @@ class PostSchema(PostBaseSchema,TimestampSchema):
     '''
     id:str
     author_id:str
-    tags:Sequence[PostTagNestedSchema]
-    comments:Sequence[PostCommentNestedSchema]
+    tags:Optional[Sequence[PostTagNestedSchema]]
+    comments:Optional[Sequence[PostCommentNestedSchema]]
+    
     class Config:
         orm_mode = True
