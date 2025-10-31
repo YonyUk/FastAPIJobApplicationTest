@@ -4,6 +4,7 @@ from database import get_database_session
 from .user import UserRepository
 from .post import PostRepository
 from .comment import CommentRepository
+from .tag import TagRepository
 
 def get_user_repository(db:AsyncSession=Depends(get_database_session)):
     '''
@@ -30,6 +31,16 @@ def get_comment_repository(db:AsyncSession=Depends(get_database_session)):
     gets the 'CommentRepository' dependency
     '''
     repository = CommentRepository(db)
+    try:
+        yield repository
+    finally:
+        repository = None
+
+def get_tag_repository(db:AsyncSession=Depends(get_database_session)):
+    '''
+    gets the 'TagRepository' dependency
+    '''
+    repository = TagRepository(db)
     try:
         yield repository
     finally:
