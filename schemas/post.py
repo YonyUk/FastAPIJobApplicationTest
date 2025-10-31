@@ -54,7 +54,7 @@ class PostCreateSchema(PostBaseSchema):
     '''
     schema for create post
     '''
-    tags:Optional[Sequence[PostTagNestedSchema]]
+    tags:Optional[Sequence[PostTagNestedSchema]] = None
 
 class PostUpdateSchema(PostBaseSchema):
     '''
