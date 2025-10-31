@@ -1,8 +1,28 @@
-from typing import Annotated
-from pydantic import BaseModel
+from typing import Annotated,Optional,Sequence
+from pydantic import BaseModel, EmailStr
 from pydantic.types import StringConstraints
 from settings import ENVIRONMENT
 from .mixins import TimestampSchema
+
+class PostUserNestedSchema(BaseModel):
+    '''
+    schema for users relation
+    '''
+    username:Annotated[str,StringConstraints(min_length=ENVIRONMENT.MIN_USERNAME_LENGTH, max_length=ENVIRONMENT.MAX_USERNAME_LENGTH)]
+    email:EmailStr
+
+class PostTagNestedSchema(BaseModel):
+    '''
+    schema for tags relation
+    '''
+    name:Annotated[str,StringConstraints(min_length=2,max_length=10)]
+    description:Annotated[str,StringConstraints(min_length=2,max_length=255)]
+
+class PostCommentNestedSchema(BaseModel):
+    '''
+    schema for comments relation
+    '''
+    content:Annotated[str,StringConstraints(min_length=1,max_length=255)]
 
 class PostBaseSchema(BaseModel):
     '''
@@ -15,11 +35,15 @@ class PostCreateSchema(PostBaseSchema):
     '''
     schema for create post
     '''
+    tags:Optional[Sequence[PostTagNestedSchema]]
+    comments:Optional[Sequence[PostCommentNestedSchema]]
 
 class PostUpdateSchema(PostBaseSchema):
     '''
     schema for update post
     '''
+    tags:Optional[Sequence[PostTagNestedSchema]]
+    comments:Optional[Sequence[PostCommentNestedSchema]]
 
 class PostSchema(PostBaseSchema,TimestampSchema):
     '''
@@ -27,6 +51,7 @@ class PostSchema(PostBaseSchema,TimestampSchema):
     '''
     id:str
     author_id:str
-    
+    tags:Sequence[PostTagNestedSchema]
+    comments:Sequence[PostCommentNestedSchema]
     class Config:
         orm_mode = True
