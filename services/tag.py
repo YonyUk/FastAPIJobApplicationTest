@@ -16,17 +16,19 @@ class TagService:
         tag:TagCreateSchema | TagUpdateSchema,
         tag_id:str | None = None
     ) -> Tag:
-        return Tag(
-            id=tag_id,
-            name=tag.name,
-            description=tag.description
-        )
+        return Tag(**tag.model_dump(),id=tag_id)
     
     async def get_by_id(self,tag_id:str) -> TagSchema | None:
         '''
         gets a tag by its id
         '''
         return await self._repository.get_by_id(tag_id)
+    
+    async def get_by_name(self,tag_name:str) -> TagSchema | None:
+        '''
+        gets a tag by its name
+        '''
+        return await self._repository.get_by_name(tag_name)
     
     async def get_all(self,limit:int=100,skip:int=0) -> Sequence[TagSchema]:
         '''

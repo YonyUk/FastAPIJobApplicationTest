@@ -121,11 +121,6 @@ async def update_user(
     service:UserService=Depends(get_user_service),
     current_user:User=Depends(get_current_user)
 ):
-    if not current_user.username == user_update.username:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Only can modify your own data'
-        )
     return await service.update(current_user.id,user_update)
 
 @router.delete(

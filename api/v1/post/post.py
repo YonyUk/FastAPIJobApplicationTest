@@ -23,7 +23,7 @@ async def create_post(
             status_code=status.HTTP_409_CONFLICT,
             detail=f'A post with title "{post.title}" already exists'
         )
-    return await service.create(current_user.username,post)
+    return await service.create(current_user.id,post)
 
 @router.get(
     '/',
@@ -86,7 +86,7 @@ async def update_post(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not post with id "{post_id}" found'
         )
-    if not db_post.author_id == current_user.username:
+    if not db_post.author_id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Only can modify posts of your own'

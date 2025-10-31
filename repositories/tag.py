@@ -46,6 +46,15 @@ class TagRepository:
         )
         return result.scalar_one_or_none()
     
+    async def get_by_name(self,tag_name:str) -> Tag | None:
+        '''
+        gets a tag by its name
+        '''
+        result = await self._db.execute(
+            select(Tag).where((Tag.is_deleted != True) & (Tag.name==tag_name))
+        )
+        return result.scalar_one_or_none()
+    
     async def get_all(self,limit:int=100,skip:int=0) -> Sequence[Tag]:
         '''
         gets all the tags

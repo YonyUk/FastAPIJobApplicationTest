@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,update
@@ -40,6 +41,28 @@ class CommentRepository:
             select(Comment).where((Comment.id==comment_id) & (Comment.is_deleted != True))
         )
         return result.scalar_one_or_none()
+    
+    async def get_comment_by_author_and_date(self,author_id:str,date:datetime) -> Comment | None:
+        '''
+        gets a comment by its author and date of creation
+        '''
+        result = await self._db.execute(
+            select(Comment).where(
+                (Comment.is_deleted != True) & 
+                (Comment.author_id==author_id) &
+                (Comment.created_at==date) 
+            )
+        )
+        return result.scalar_one_or_none()
+    
+    async def get_comments_by_post(self,post_id:str) -> Sequence[Comment]:
+        '''
+        gets all the comments of a post
+        '''
+        result = await self._db.execute(
+            select(Comment).where((Comment.is_deleted != True) & (Comment.post_id==post_id))
+        )
+        return result.scalars().all()
     
     async def get_all(self,limit:int=100,skip:int=0) -> Sequence[Comment]:
         '''

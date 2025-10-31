@@ -55,7 +55,7 @@ class PostRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_by_id(self,post_id:str) -> Post | None:
+    async def get_by_id(self,post_id:str,relations:bool = False) -> Post | None:
         '''
         gets a post by it's id
         '''
@@ -64,7 +64,7 @@ class PostRepository:
         )
         return result.scalar_one_or_none()
     
-    async def get_by_title(self,post_title:str) -> Post | None:
+    async def get_by_title(self,post_title:str,relations:bool = False) -> Post | None:
         '''
         gets a post by it's title
         '''
@@ -73,7 +73,7 @@ class PostRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_all(self,limit:int=100,skip:int=0) -> List[Post]:
+    async def get_all(self,limit:int=100,skip:int=0,relations:bool=False) -> List[Post]:
         '''
         gets all the posts
 
@@ -115,11 +115,15 @@ class PostRepository:
         '''
         updates a 'Post' in the database
         '''
-        update_data = self._post_to_dict(post_update)
         db_post = await self.get_by_id(post_id)
+        if db_post is None:
+            return None
+        update_data = self._post_to_dict(post_update)
         await self._db.execute(
             update(Post).where((Post.id==post_id) & (Post.is_deleted != True)).values(**update_data)
         )
+        if post_update.tags:
+            db_post.tags = post_update.tags
         await self._db.commit()
         await self._db.refresh(db_post)
         

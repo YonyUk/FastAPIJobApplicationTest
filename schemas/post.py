@@ -8,7 +8,13 @@ class PostUserNestedSchema(BaseModel):
     '''
     schema for users relation
     '''
-    username:Annotated[str,StringConstraints(min_length=ENVIRONMENT.MIN_USERNAME_LENGTH, max_length=ENVIRONMENT.MAX_USERNAME_LENGTH)]
+    username:Annotated[
+        str,
+        StringConstraints(
+            min_length=ENVIRONMENT.MIN_USERNAME_LENGTH,
+            max_length=ENVIRONMENT.MAX_USERNAME_LENGTH
+        )
+    ]
     email:EmailStr
 
 class PostTagNestedSchema(BaseModel):
@@ -23,12 +29,25 @@ class PostCommentNestedSchema(BaseModel):
     schema for comments relation
     '''
     content:Annotated[str,StringConstraints(min_length=1,max_length=255)]
+    author:Annotated[
+        str,
+        StringConstraints(
+            min_length=ENVIRONMENT.MIN_USERNAME_LENGTH,
+            max_length=ENVIRONMENT.MAX_USERNAME_LENGTH
+        )
+    ]
 
 class PostBaseSchema(BaseModel):
     '''
     base schema for 'Post'
     '''
-    title:Annotated[str,StringConstraints(min_length=ENVIRONMENT.MIN_POST_TITLE_LENGTH, max_length=ENVIRONMENT.MAX_POST_TITLE_LENGTH)]
+    title:Annotated[
+        str,
+        StringConstraints(
+            min_length=ENVIRONMENT.MIN_POST_TITLE_LENGTH,
+            max_length=ENVIRONMENT.MAX_POST_TITLE_LENGTH
+        )
+    ]
     content:Annotated[str,StringConstraints(min_length=1)]
 
 class PostCreateSchema(PostBaseSchema):
@@ -36,14 +55,12 @@ class PostCreateSchema(PostBaseSchema):
     schema for create post
     '''
     tags:Optional[Sequence[PostTagNestedSchema]]
-    comments:Optional[Sequence[PostCommentNestedSchema]]
 
 class PostUpdateSchema(PostBaseSchema):
     '''
     schema for update post
     '''
     tags:Optional[Sequence[PostTagNestedSchema]]
-    comments:Optional[Sequence[PostCommentNestedSchema]]
 
 class PostSchema(PostBaseSchema,TimestampSchema):
     '''
