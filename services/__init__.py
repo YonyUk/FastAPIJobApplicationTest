@@ -3,13 +3,16 @@ from repositories import (
     get_post_repository,
     get_user_repository,
     get_comment_repository,
+    get_tag_repository,
     UserRepository,
     PostRepository,
-    CommentRepository
+    CommentRepository,
+    TagRepository
 )
 from .user import UserService
 from .post import PostService
 from .comment import CommentService
+from .tag import TagService
 
 def get_user_service(repository:UserRepository = Depends(get_user_repository)):
     '''
@@ -36,6 +39,16 @@ def get_comment_service(repository:CommentRepository=Depends(get_comment_reposit
     gets the comment service dependency
     '''
     service = CommentService(repository)
+    try:
+        yield service
+    finally:
+        service = None
+
+def get_tag_service(repository:TagRepository=Depends(get_tag_repository)):
+    '''
+    gets the tag service dependency
+    '''
+    service = TagService(repository)
     try:
         yield service
     finally:
