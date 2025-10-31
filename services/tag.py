@@ -16,7 +16,7 @@ class TagService:
         tag:TagCreateSchema | TagUpdateSchema,
         tag_id:str | None = None
     ) -> Tag:
-        return Tag(**tag.model_dump(),id=tag_id)
+        return Tag(**tag.model_dump())
     
     async def get_by_id(self,tag_id:str) -> TagSchema | None:
         '''

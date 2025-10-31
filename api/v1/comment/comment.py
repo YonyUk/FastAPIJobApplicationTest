@@ -3,7 +3,7 @@ from fastapi import APIRouter,HTTPException,status,Depends
 from models import User
 from schemas import CommentCreateSchema,CommentUpdateSchema,CommentSchema
 from security import get_current_user
-from services import CommentService,get_comment_service
+from services import CommentService,PostService,get_comment_service,get_post_service
 
 router = APIRouter(prefix='/comments',tags=['comments'])
 
@@ -15,10 +15,23 @@ router = APIRouter(prefix='/comments',tags=['comments'])
 async def post_comment(
     post_id:str,
     comment:CommentCreateSchema,
-    service:CommentService=Depends(get_comment_service),
+    comment_service:CommentService=Depends(get_comment_service),
+    post_service:PostService=Depends(get_post_service),
     current_user:User=Depends(get_current_user)
 ):
-    return await service.create(current_user.id,post_id,comment)
+    db_post = await post_service.get_by_id(post_id)
+    if db_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'Not post with id "{post_id}" found'
+        )
+    db_comment = await comment_service.create(current_user.id,post_id,comment)
+    if db_comment is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='An unexpected error has ocurred'
+        )
+    return db_comment
 
 @router.get(
     '/',

@@ -44,6 +44,7 @@ class PostService:
     ) -> Sequence[PostCommentNestedSchema]:
         result = []
         for comment in comments:
+            if comment.is_deleted: continue
             author = await self._user_repository.get_by_id(comment.author_id)
             result.append(
                 PostCommentNestedSchema(
@@ -158,4 +159,9 @@ class PostService:
         '''
         deletes a post
         '''
+        db_post = await self._post_repository.get_by_id(post_id)
+        if db_post is None:
+            return False
+        for comment in db_post.comments:
+            await self._comment_repository.delete(comment.id)
         return await self._post_repository.delete(post_id)

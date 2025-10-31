@@ -76,8 +76,8 @@ class TagRepository:
         if db_tag is None:
             self._db.add(tag)
             await self._db.commit()
-            await self._db.refresh(db_tag)
-            return db_tag
+            await self._db.refresh(tag)
+            return tag
         elif db_tag.is_deleted:
             db_tag.restore()
             update_data = self._tag_to_dict(tag)
