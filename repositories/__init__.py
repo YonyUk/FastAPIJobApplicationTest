@@ -5,6 +5,7 @@ from .user import UserRepository
 from .post import PostRepository
 from .comment import CommentRepository
 from .tag import TagRepository
+from .base import BaseRepository
 
 def get_user_repository(db:AsyncSession=Depends(get_database_session)):
     '''

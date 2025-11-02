@@ -1,11 +1,12 @@
 from typing import Generic, Sequence, TypeVar
+from abc import ABC,abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,update
 from database import BaseModel
 
 ModelType = TypeVar('ModelType',bound=BaseModel) # type: ignore
 
-class BaseRepository(Generic[ModelType]):
+class BaseRepository(Generic[ModelType],ABC):
     
     def __init__(self,model:type[ModelType],db:AsyncSession):
         '''
@@ -21,6 +22,7 @@ class BaseRepository(Generic[ModelType]):
             if hasattr(instance,key)
         }
 
+    @abstractmethod
     async def _get_instance_ignore_deleted(self,instance:ModelType) -> ModelType | None:
         '''
         gets an instance by eny of its unique fields
