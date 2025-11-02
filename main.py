@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from scalar_fastapi.scalar_fastapi import get_scalar_api_reference,Layout
 from alembic.config import Config
 from alembic import command
 import logging
@@ -28,7 +29,9 @@ async def run_migrations():
 app = FastAPI(
     title='FastAPI Job Application Test',
     description='Challenge',
-    version=ENVIRONMENT.API_VERSION
+    version=ENVIRONMENT.API_VERSION,
+    docs_url=None,
+
 )
 
 @app.on_event('startup')
@@ -48,6 +51,19 @@ app.include_router(comment.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
 app.include_router(tag.router,prefix=ENVIRONMENT.GLOBAL_API_PREFIX)
 
 app.add_middleware(TimeLoggerMiddleware)
+
+@app.get("/docs",include_in_schema=False)
+async def scalar_docs():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url, # type: ignore
+        title='FastAPI Job Application Test',
+        layout=Layout.MODERN,
+        dark_mode=True,
+        show_sidebar=True,
+        default_open_all_tags=True,
+        hide_download_button=False,
+        hide_models=False
+    )
 
 @app.exception_handler(404)
 async def not_found_exception_handler(request,exc):
