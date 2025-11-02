@@ -33,12 +33,20 @@ class EnvironmentSettings:
         self._max_user_password_length:int = int(os.getenv('MAX_USER_PASSWORD_LENGTH','max length for the password field'))
         self._min_post_title_length:int = int(os.getenv('MIN_POST_TITLE_LENGTH','min length for the title field of post entity'))
         self._max_post_title_length:int = int(os.getenv('MAX_POST_TITLE_LENGTH','max length for the title field of post entity'))
+        self._pages_size:int = int(os.getenv('PAGES_SIZE','size of pages in pagination'))
 
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
+    
+    @property
+    def PAGES_SIZE(self):
+        '''
+        size of pages in pagination
+        '''
+        return self._pages_size
 
     @property
     def MIN_POST_TITLE_LENGTH(self):

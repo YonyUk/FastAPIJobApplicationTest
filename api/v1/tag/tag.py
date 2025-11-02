@@ -1,9 +1,10 @@
 from typing import Sequence
-from fastapi import APIRouter,HTTPException,status,Depends
+from fastapi import APIRouter,HTTPException,status,Depends,Query
 from models import User
 from schemas import TagCreateSchema,TagUpdateSchema,TagSchema
 from security import get_current_user
 from services import TagService,get_tag_service
+from settings import ENVIRONMENT
 
 router = APIRouter(prefix='/tags',tags=['tags'])
 
@@ -31,9 +32,15 @@ async def post_tag(
     response_model=Sequence[TagSchema]
 )
 async def get_tags(
+    page:int=Query(0,ge=0,description='page of results'),
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:TagService=Depends(get_tag_service)
 ):
-    return await service.get_all()
+    return await service.get_all(
+        ENVIRONMENT.PAGES_SIZE,
+        page*ENVIRONMENT.PAGES_SIZE,
+        include_deleted
+    )
 
 @router.get(
     '/{tag_id}',
@@ -42,9 +49,10 @@ async def get_tags(
 )
 async def get_by_id(
     tag_id:str,
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:TagService=Depends(get_tag_service)
 ):
-    db_tag = await service.get_by_id(tag_id)
+    db_tag = await service.get_by_id(tag_id,include_deleted)
     if db_tag is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -59,9 +67,10 @@ async def get_by_id(
 )
 async def get_by_name(
     tag_name:str,
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:TagService=Depends(get_tag_service)
 ):
-    db_tag = await service.get_by_name(tag_name)
+    db_tag = await service.get_by_name(tag_name,include_deleted)
     if db_tag is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

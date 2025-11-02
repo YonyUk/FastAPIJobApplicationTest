@@ -102,11 +102,11 @@ class PostService(
             author_id=model.author_id
         )
     
-    async def get_by_title(self,post_title:str) -> PostSchema | None:
+    async def get_by_title(self,post_title:str,include_deleted:bool=False) -> PostSchema | None:
         '''
         gets a post by its title
         '''
-        result = await self._repository.get_by_title(post_title)
+        result = await self._repository.get_by_title(post_title,include_deleted)
         if result is None:
             return None
         return await self._to_schema(result)

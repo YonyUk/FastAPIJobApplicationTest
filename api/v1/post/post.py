@@ -1,9 +1,10 @@
 from typing import Sequence
-from fastapi import APIRouter,HTTPException,status,Depends
+from fastapi import APIRouter,HTTPException,status,Depends,Query
 from models import User
 from schemas import PostCreateSchema,PostUpdateSchema,PostSchema
 from security import get_current_user
 from services import PostService,get_post_service
+from settings import ENVIRONMENT
 
 router = APIRouter(prefix='/posts',tags=['posts'])
 
@@ -31,9 +32,15 @@ async def create_post(
     response_model=Sequence[PostSchema]
 )
 async def get_posts(
+    page:int=Query(0,ge=0,description='page of results'),
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:PostService=Depends(get_post_service)
 ):
-    return await service.get_all()
+    return await service.get_all(
+        ENVIRONMENT.PAGES_SIZE,
+        page*ENVIRONMENT.PAGES_SIZE,
+        include_deleted
+    )
 
 @router.get(
     '/{post_id}',
@@ -42,9 +49,10 @@ async def get_posts(
 )
 async def get_by_id(
     post_id:str,
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:PostService=Depends(get_post_service)
 ):
-    db_post = await service.get_by_id(post_id)
+    db_post = await service.get_by_id(post_id,include_deleted)
     if db_post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -59,9 +67,10 @@ async def get_by_id(
 )
 async def get_by_title(
     post_title:str,
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:PostService=Depends(get_post_service)
 ):
-    db_post = await service.get_by_title(post_title)
+    db_post = await service.get_by_title(post_title,include_deleted)
     if db_post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

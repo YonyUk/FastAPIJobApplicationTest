@@ -1,9 +1,14 @@
-from typing import List, Sequence
-from fastapi import APIRouter,HTTPException,status,Depends
+from typing import Sequence
+from fastapi import APIRouter,HTTPException,status,Depends,Query
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from models import User
-from schemas import UserCreateSchema,UserSchema,TokenSchema,UserUpdateSchema
+from schemas import (
+    UserCreateSchema,
+    UserSchema,
+    TokenSchema,
+    UserUpdateSchema
+)
 from security import create_access_token,get_current_user
 from settings import ENVIRONMENT
 from services import UserService,get_user_service
@@ -59,9 +64,15 @@ async def login_for_access_token(
     response_model=Sequence[UserSchema]
 )
 async def get_users(
+    page:int = Query(0,description='page of results',ge=0),
+    include_deleted:bool = Query(False,description='includes deleted items'),
     service:UserService=Depends(get_user_service)
 ):
-    return await service.get_all()
+    return await service.get_all(
+        ENVIRONMENT.PAGES_SIZE,
+        page*ENVIRONMENT.PAGES_SIZE,
+        include_deleted
+    )
 
 @router.get(
     '/{user_id}',
@@ -69,9 +80,10 @@ async def get_users(
 )
 async def get_by_id(
     user_id:str,
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:UserService=Depends(get_user_service)
 ):
-    db_user = await service.get_by_id(user_id)
+    db_user = await service.get_by_id(user_id,include_deleted)
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

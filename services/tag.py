@@ -31,8 +31,8 @@ class TagService(
         model.is_deleted = existing_model.is_deleted
         return model
     
-    async def get_by_name(self,tag_name:str) -> TagSchema:
+    async def get_by_name(self,tag_name:str,include_deleted:bool=False) -> TagSchema:
         '''
         gets a tag by its name
         '''
-        return await self._repository.get_by_name(tag_name)
+        return await self._repository.get_by_name(tag_name,include_deleted)

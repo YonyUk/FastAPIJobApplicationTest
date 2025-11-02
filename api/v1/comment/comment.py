@@ -1,9 +1,10 @@
 from typing import Sequence
-from fastapi import APIRouter,HTTPException,status,Depends
+from fastapi import APIRouter,HTTPException,status,Depends,Query
 from models import User
 from schemas import CommentCreateSchema,CommentUpdateSchema,CommentSchema
 from security import get_current_user
 from services import CommentService,PostService,get_comment_service,get_post_service
+from settings import ENVIRONMENT
 
 router = APIRouter(prefix='/comments',tags=['comments'])
 
@@ -39,9 +40,15 @@ async def post_comment(
     response_model=Sequence[CommentSchema]
 )
 async def get_comments(
+    page:int=Query(0,ge=0,description='page of results'),
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:CommentService=Depends(get_comment_service)
 ):
-    return await service.get_all()
+    return await service.get_all(
+        ENVIRONMENT.PAGES_SIZE,
+        page*ENVIRONMENT.PAGES_SIZE,
+        include_deleted
+    )
 
 @router.get(
     '/{comment_id}',
@@ -50,9 +57,10 @@ async def get_comments(
 )
 async def get_by_id(
     comment_id:str,
+    include_deleted:bool=Query(False,description='include deleted items'),
     service:CommentService=Depends(get_comment_service)
 ):
-    db_comment = await service.get_by_id(comment_id)
+    db_comment = await service.get_by_id(comment_id,include_deleted)
     if db_comment is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

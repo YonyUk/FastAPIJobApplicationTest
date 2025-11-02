@@ -1,4 +1,4 @@
-from typing import Sequence,Generic,TypeVar,Callable
+from typing import Sequence,Generic,TypeVar
 from pydantic import BaseModel as SchemasBaseModel
 from abc import ABC,abstractmethod
 from database import BaseModel as ModelsBaseModel
@@ -17,7 +17,8 @@ class BaseService(
         UpdateSchemaType,
         SchemaType,
         RepositoryType
-    ]
+    ],
+    ABC
 ):
     
     def __init__(
@@ -29,11 +30,18 @@ class BaseService(
         ):
         '''
         base service implementation for all services
+
+        params:
+            model -> Type of the model that this service will be handling
+            repository -> repository to access to data
+            exclude_fields -> fields to exclude from schemas internally at moment
+                of call function _get_instance throug method Schema.model_dump
+            exclude_unset -> similary to 'exclude_fields'
         '''
         self._repository = repository
         self._model = model
         self._exclude_fields = exclude_fields
-        self._exclude_unset = exclude_unset
+        self._exclude_unset = exclude_unset or len(exclude_fields) > 0
 
     async def _to_schema(self,model:ModelType) -> SchemaType:
         return model # type: ignore
