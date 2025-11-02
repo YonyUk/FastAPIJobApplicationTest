@@ -23,7 +23,8 @@ async def create_post(
             status_code=status.HTTP_409_CONFLICT,
             detail=f'A post with title "{post.title}" already exists'
         )
-    return await service.create(current_user.id,post)
+    # breakpoint()
+    return await service.create(post,author_id=current_user.id)
 
 @router.get(
     '',
@@ -91,7 +92,7 @@ async def update_post(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Only can modify posts of your own'
         )
-    db_post = await service.update(post_id,post_update)
+    db_post = await service.update(post_id,post_update,author_id=current_user.id)
     if db_post is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

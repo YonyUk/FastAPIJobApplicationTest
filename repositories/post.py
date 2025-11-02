@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select,update
 from models import Post
 from .base import BaseRepository
 
@@ -27,3 +27,21 @@ class PostRepository(BaseRepository):
             query = query.where((Post.title==post_title) & (Post.is_deleted != True))
         result = await self._db.execute(query)
         return result.scalar_one_or_none()
+    
+    async def update(self, instance_id: str, update_instance: Post) -> Post | None:
+        db_instance = await self.get_by_id(instance_id)
+        if db_instance is None:
+            return None
+        
+        update_instance.created_at = db_instance.created_at
+        update_instance.updated_at = db_instance.updated_at
+        update_data = self._instance_to_dict(update_instance)
+        await self._db.execute(
+            update(self._model).where((self._model.is_deleted != True) & (self._model.id==instance_id)).values(**update_data)
+        )
+        if update_instance.tags:
+            db_instance.tags = update_instance.tags
+        await self._db.commit()
+        await self._db.refresh(db_instance)
+        
+        return db_instance

@@ -20,12 +20,20 @@ class BaseService(
     ]
 ):
     
-    def __init__(self,model:type[ModelType],repository:RepositoryType):
+    def __init__(
+            self,
+            model:type[ModelType],
+            repository:RepositoryType,
+            exclude_fields:set=set(),
+            exclude_unset:bool=True
+        ):
         '''
         base service implementation for all services
         '''
         self._repository = repository
         self._model = model
+        self._exclude_fields = exclude_fields
+        self._exclude_unset = exclude_unset
 
     async def _to_schema(self,model:ModelType) -> SchemaType:
         return model # type: ignore
@@ -42,13 +50,23 @@ class BaseService(
         # creates the instance with the updated data
         db_instance = self._get_instance(
             **{
-                **update_data.model_dump(),
+                **update_data.model_dump(
+                    exclude=self._exclude_fields,
+                    exclude_unset=self._exclude_unset
+                ),
                 **extra_fields
             }
         )
         # modify the updated instance
         return await self._process_before_update_modifier(update_data,existing_model,db_instance)
     
+    async def _process_before_create(
+        self,
+        instance:ModelType,
+        create_value:CreateSchemaType
+    ) -> ModelType:
+        return instance
+
     @abstractmethod
     async def _process_before_update_modifier(
         self,
@@ -85,11 +103,20 @@ class BaseService(
             instances.append(ins)
         return instances
     
-    async def create(self,value:CreateSchemaType) -> SchemaType | None:
+    async def create(self,value:CreateSchemaType,**extra_fields) -> SchemaType | None:
         '''
         creates a new instance
         '''
-        db_instance = self._get_instance(**value.model_dump())
+        db_instance = self._get_instance(
+            **{
+                **value.model_dump(
+                    exclude=self._exclude_fields,
+                    exclude_unset=self._exclude_unset
+                ),
+                **extra_fields
+            }
+        )
+        db_instance = await self._process_before_create(db_instance,value)
         result = await self._repository.create(db_instance)
         if result is None:
             return None
