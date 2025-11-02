@@ -150,6 +150,7 @@ class PostService:
             db_post.tags = await self._process_tags(post_update.tags)
         db_post.created_at = post.created_at
         db_post.updated_at = post.updated_at
+        db_post.is_deleted = post.is_deleted
         result = await self._post_repository.update(post_id,db_post)
         if result is None:
             return None
