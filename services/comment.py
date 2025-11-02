@@ -17,9 +17,9 @@ class CommentService:
             comment_id:str | None = None
     ) -> Comment:
         return Comment(
+            **comment.model_dump(),
             id=comment_id,
             author_id=author_id,
-            content=comment.content,
             post_id=post_id
         )
     
@@ -56,6 +56,7 @@ class CommentService:
         db_comment = self._get_comment_instance(comment.author_id,comment.post_id,comment_update,comment_id)
         db_comment.created_at = comment.created_at
         db_comment.updated_at = comment.updated_at
+        db_comment.is_deleted = comment.is_deleted
         return await self._repository.update(db_comment.id,db_comment)
     
     async def delete(self,comment_id:str) -> bool:
