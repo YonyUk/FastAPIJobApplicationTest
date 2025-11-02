@@ -3,7 +3,14 @@ from fastapi import APIRouter,HTTPException,status,Depends,Query
 from models import User
 from schemas import CommentCreateSchema,CommentUpdateSchema,CommentSchema
 from security import get_current_user
-from services import CommentService,PostService,get_comment_service,get_post_service
+from services import (
+    CommentService,
+    PostService,
+    AuthorizationService,
+    get_authorization_service,
+    get_comment_service,
+    get_post_service
+)
 from settings import ENVIRONMENT
 
 router = APIRouter(prefix='/comments',tags=['comments'])
@@ -76,8 +83,8 @@ async def get_by_id(
 async def update_comment(
     comment_id:str,
     comment:CommentUpdateSchema,
-    current_user:User=Depends(get_current_user),
-    service:CommentService=Depends(get_comment_service)
+    service:CommentService=Depends(get_comment_service),
+    authorization_service:AuthorizationService=Depends(get_authorization_service)
 ):
     db_comment = await service.get_by_id(comment_id)
     if db_comment is None:
@@ -85,9 +92,9 @@ async def update_comment(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not comment with id "{comment_id}" found'
         )
-    if db_comment.author_id != current_user.id:
+    if not authorization_service.validate_modification(db_comment.author_id):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f'Only can modify comments of your own'
         )
     db_comment = await service.update(comment_id,comment)
@@ -104,8 +111,8 @@ async def update_comment(
 )
 async def delete_comment(
     comment_id:str,
-    current_user:User=Depends(get_current_user),
-    service:CommentService=Depends(get_comment_service)
+    service:CommentService=Depends(get_comment_service),
+    authorization_service:AuthorizationService=Depends(get_authorization_service)
 ):
     db_comment = await service.get_by_id(comment_id)
     if db_comment is None:
@@ -114,9 +121,9 @@ async def delete_comment(
             detail=f'Not comment with id "{comment_id}" found'
         )
     
-    if db_comment.author_id != current_user.id:
+    if not authorization_service.validate_deletion(db_comment.author_id):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f'Only can modify comments of your own'
         )
     

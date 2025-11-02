@@ -3,7 +3,7 @@ from fastapi import APIRouter,HTTPException,status,Depends,Query
 from models import User
 from schemas import PostCreateSchema,PostUpdateSchema,PostSchema
 from security import get_current_user
-from services import PostService,get_post_service
+from services import PostService,get_post_service,AuthorizationService,get_authorization_service
 from settings import ENVIRONMENT
 
 router = APIRouter(prefix='/posts',tags=['posts'])
@@ -87,7 +87,8 @@ async def update_post(
     post_id:str,
     post_update:PostUpdateSchema,
     current_user:User=Depends(get_current_user),
-    service:PostService=Depends(get_post_service)
+    service:PostService=Depends(get_post_service),
+    authorization_service:AuthorizationService=Depends(get_authorization_service)
 ):
     db_post = await service.get_by_id(post_id)
     if db_post is None:
@@ -95,9 +96,9 @@ async def update_post(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not post with id "{post_id}" found'
         )
-    if not db_post.author_id == current_user.id:
+    if not authorization_service.validate_modification(post_id):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail='Only can modify posts of your own'
         )
     db_post = await service.update(post_id,post_update,author_id=current_user.id)
@@ -115,7 +116,7 @@ async def update_post(
 async def delete(
     post_id:str,
     service:PostService=Depends(get_post_service),
-    current_user:User=Depends(get_current_user)
+    authorization_service:AuthorizationService=Depends(get_authorization_service)
 ):
     db_post = await service.get_by_id(post_id)
     if db_post is None:
@@ -123,9 +124,9 @@ async def delete(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not post with id "{post_id}" found'
         )
-    if not db_post.author_id == current_user.id:
+    if not authorization_service.validate_deletion(post_id):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail='Only can delete posts of your own'
         )
     result = await service.delete(post_id)

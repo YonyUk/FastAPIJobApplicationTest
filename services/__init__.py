@@ -13,6 +13,9 @@ from .user import UserService
 from .post import PostService
 from .comment import CommentService
 from .tag import TagService
+from .authorization import AuthorizationService
+from models import User
+from security import get_current_user
 
 def get_user_service(repository:UserRepository = Depends(get_user_repository)):
     '''
@@ -59,6 +62,13 @@ def get_tag_service(repository:TagRepository=Depends(get_tag_repository)):
     gets the tag service dependency
     '''
     service = TagService(repository)
+    try:
+        yield service
+    finally:
+        service = None
+
+def get_authorization_service(user:User=Depends(get_current_user)):
+    service = AuthorizationService(user)
     try:
         yield service
     finally:
