@@ -1,5 +1,6 @@
-from typing import Sequence,Generic,TypeVar
+from typing import Sequence,Generic,TypeVar,Callable
 from pydantic import BaseModel as SchemasBaseModel
+from abc import ABC,abstractmethod
 from database import BaseModel as ModelsBaseModel
 from repositories import BaseRepository
 
@@ -26,18 +27,43 @@ class BaseService(
         self._repository = repository
         self._model = model
 
-    def _to_schema(self,model:ModelType) -> SchemaType:
+    async def _to_schema(self,model:ModelType) -> SchemaType:
         return model # type: ignore
     
     def _get_instance(self,**fields) -> ModelType:
         return self._model(**fields)
+    
+    async def _process_before_update(
+        self,
+        update_data:UpdateSchemaType,
+        existing_model:ModelType,
+        **extra_fields
+    ) -> ModelType:
+        # creates the instance with the updated data
+        db_instance = self._get_instance(
+            **{
+                **update_data.model_dump(),
+                **extra_fields
+            }
+        )
+        # modify the updated instance
+        return await self._process_before_update_modifier(update_data,existing_model,db_instance)
+    
+    @abstractmethod
+    async def _process_before_update_modifier(
+        self,
+        update_data:UpdateSchemaType,
+        existing_model:ModelType,
+        model:ModelType
+    ) -> ModelType:
+        raise NotImplementedError()
     
     async def get_by_id(self,instance_id:str,include_deleted:bool=False) -> SchemaType | None:
         '''
         gets an instance by its id
         '''
         model = await self._repository.get_by_id(instance_id,include_deleted)
-        return self._to_schema(model) # type: ignore
+        return await self._to_schema(model) # type: ignore
     
     async def get_all(
         self,
@@ -53,14 +79,21 @@ class BaseService(
             skip:int -> number of registers to skip
         '''
         results = await self._repository.get_all(limit,skip,include_deleted)
-        return map(lambda model:self._to_schema(model),results) # type: ignore
+        instances = []
+        for result in results:
+            ins = await self._to_schema(result)
+            instances.append(ins)
+        return instances
     
     async def create(self,value:CreateSchemaType) -> SchemaType | None:
         '''
         creates a new instance
         '''
         db_instance = self._get_instance(**value.model_dump())
-        return await self._repository.create(db_instance)
+        result = await self._repository.create(db_instance)
+        if result is None:
+            return None
+        return await self._to_schema(result)
     
     async def update(
         self,
@@ -71,15 +104,13 @@ class BaseService(
         '''
         updates an instance
         '''
-        instance = await self.get_by_id(instance_id)
-        if instance is None:
+        existing_instance = await self._repository.get_by_id(instance_id)
+        if existing_instance is None:
             return None
-        db_instance = self._get_instance(
-            **{
-                **update_instance.model_dump(),
-                **extra_values,
-                'id':instance_id
-            }
+        db_instance = await self._process_before_update(
+            update_instance,
+            existing_instance,
+            **{**extra_values,'id':instance_id}
         )
         return await self._repository.update(instance_id,db_instance)
     
