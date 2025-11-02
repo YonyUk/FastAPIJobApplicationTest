@@ -26,7 +26,7 @@ async def create_post(
     return await service.create(current_user.id,post)
 
 @router.get(
-    '/',
+    '',
     status_code=status.HTTP_200_OK,
     response_model=Sequence[PostSchema]
 )

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Sequence
 from fastapi import APIRouter,HTTPException,status,Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
@@ -55,8 +55,8 @@ async def login_for_access_token(
     return {'access_token':access_token,'token_type':'bearer'}
 
 @router.get(
-    '/',
-    response_model=List[UserSchema]
+    '',
+    response_model=Sequence[UserSchema]
 )
 async def get_users(
     service:UserService=Depends(get_user_service)
@@ -76,38 +76,6 @@ async def get_by_id(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not user with id "{user_id}" found'
-        )
-    return db_user
-
-@router.get(
-    '/username/{username}',
-    response_model=UserSchema
-)
-async def get_by_username(
-    username:str,
-    service:UserService=Depends(get_user_service)
-):
-    db_user = await service.get_by_username(username)
-    if db_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'Not user with username "{username}" found'
-        )
-    return db_user
-
-@router.get(
-    '/email/{email}',
-    response_model=UserSchema
-)
-async def get_by_email(
-    email:str,
-    service:UserService=Depends(get_user_service)
-):
-    db_user = await service.get_by_email(email)
-    if db_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'Not user with email "{email}" found'
         )
     return db_user
 

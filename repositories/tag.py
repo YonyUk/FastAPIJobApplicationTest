@@ -2,6 +2,7 @@ from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select,update
 from models import Tag
+from .base import BaseRepository
 
 class TagRepository:
 
@@ -122,3 +123,11 @@ class TagRepository:
         await self._db.refresh(db_tag)
         
         return True
+
+# class TagRepository(BaseRepository[Tag]):
+
+#     def __init__(self,db:AsyncSession):
+#         '''
+#         repository for 'Tag'
+#         '''
+#         super().__init__(Tag,db)

@@ -8,7 +8,7 @@ from services import TagService,get_tag_service
 router = APIRouter(prefix='/tags',tags=['tags'])
 
 @router.post(
-    '/',
+    '',
     status_code=status.HTTP_201_CREATED,
     response_model=TagSchema
 )
@@ -26,7 +26,7 @@ async def post_tag(
     return await service.create(tag)
 
 @router.get(
-    '/',
+    '',
     status_code=status.HTTP_200_OK,
     response_model=Sequence[TagSchema]
 )

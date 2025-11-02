@@ -8,7 +8,7 @@ from services import CommentService,PostService,get_comment_service,get_post_ser
 router = APIRouter(prefix='/comments',tags=['comments'])
 
 @router.post(
-    '/',
+    '',
     status_code=status.HTTP_201_CREATED,
     response_model=CommentSchema
 )
@@ -34,7 +34,7 @@ async def post_comment(
     return db_comment
 
 @router.get(
-    '/',
+    '',
     status_code=status.HTTP_200_OK,
     response_model=Sequence[CommentSchema]
 )
