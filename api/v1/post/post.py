@@ -23,7 +23,6 @@ async def create_post(
             status_code=status.HTTP_409_CONFLICT,
             detail=f'A post with title "{post.title}" already exists'
         )
-    # breakpoint()
     return await service.create(post,author_id=current_user.id)
 
 @router.get(
