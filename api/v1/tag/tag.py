@@ -99,8 +99,9 @@ async def update(
     status_code=status.HTTP_202_ACCEPTED
 )
 async def delete_tag(
+    tag_id:str,
     current_user:User=Depends(get_current_user),
     service:TagService=Depends(get_tag_service)
 ):
-    result = await service.delete(current_user.id)
-    return {'messsage':'user deleted' if result else 'user was not deleted'}
+    result = await service.delete(tag_id)
+    return {'messsage':'tag deleted' if result else 'tag was not deleted'}

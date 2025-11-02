@@ -34,7 +34,7 @@ class BaseRepository(Generic[ModelType]):
         gets an instance by its id
         '''
         query = select(self._model)
-        query = query.where((self._model.id==id) & (self._model.is_deleted != False)) if not include_deleted else query.where(self._model.id==id)
+        query = query.where((self._model.id==id) & (self._model.is_deleted != True)) if not include_deleted else query.where(self._model.id==id)
         result = await self._db.execute(
             query
         )

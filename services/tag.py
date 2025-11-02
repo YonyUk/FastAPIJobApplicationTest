@@ -16,7 +16,7 @@ class TagService:
         tag:TagCreateSchema | TagUpdateSchema,
         tag_id:str | None = None
     ) -> Tag:
-        return Tag(**tag.model_dump())
+        return Tag(**tag.model_dump(),id=tag_id)
     
     async def get_by_id(self,tag_id:str) -> TagSchema | None:
         '''
@@ -55,9 +55,10 @@ class TagService:
         if tag is None:
             return None
         
-        db_tag = self._get_tag_instance(tag_update)
+        db_tag = self._get_tag_instance(tag_update,tag_id)
         db_tag.created_at = tag.created_at
         db_tag.updated_at = tag.updated_at
+        db_tag.is_deleted = tag.is_deleted if tag.is_deleted is not None else False
         return await self._repository.update(tag_id,db_tag)
     
     async def delete(self,tag_id:str) -> bool:
