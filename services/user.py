@@ -19,18 +19,12 @@ class UserService:
         user:UserCreateSchema | UserUpdateSchema,
         user_id:str | None = None
     ) -> User:
-        if isinstance(user,UserUpdateSchema):
-            return User(
-                id=user_id,
-                username=user.username,
-                email=user.email,
-                hashed_password=self._crypt_context.hash(str(user.password))
-            )
+        
         return User(
             id=user_id,
             username=user.username,
             email=user.email,
-            hashed_password=self._crypt_context.hash(str(user.password)),
+            hashed_password=self._crypt_context.hash(user.password)
         )
     
     async def authenticate_user(self,username:str,password:str) -> UserSchema | None:
@@ -83,8 +77,15 @@ class UserService:
         '''
         updates a user
         '''
-        user = self._get_user_instance(user_update,user_id)
-        return await self._repository.update(user_id,user)
+        user = await self._repository.get_by_id(user_id)
+        if user is None:
+            return None
+        
+        db_user = self._get_user_instance(user_update,user_id)
+        db_user.created_at = user.created_at
+        db_user.updated_at = user.updated_at
+        db_user.is_deleted = user.is_deleted
+        return await self._repository.update(user_id,db_user)
     
     async def delete(self,user_id:str) -> bool:
         '''

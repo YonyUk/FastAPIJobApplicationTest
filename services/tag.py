@@ -58,7 +58,7 @@ class TagService:
         db_tag = self._get_tag_instance(tag_update,tag_id)
         db_tag.created_at = tag.created_at
         db_tag.updated_at = tag.updated_at
-        db_tag.is_deleted = tag.is_deleted if tag.is_deleted is not None else False
+        db_tag.is_deleted = tag.is_deleted
         return await self._repository.update(tag_id,db_tag)
     
     async def delete(self,tag_id:str) -> bool:

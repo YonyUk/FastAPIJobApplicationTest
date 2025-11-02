@@ -1,6 +1,5 @@
-from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select,update
+from sqlalchemy import select
 from models import Tag
 from .base import BaseRepository
 
