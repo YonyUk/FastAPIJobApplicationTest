@@ -25,7 +25,7 @@ async def post_comment(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f'Not post with id "{post_id}" found'
         )
-    db_comment = await comment_service.create(current_user.id,post_id,comment)
+    db_comment = await comment_service.create(comment,author_id=current_user.id,post_id=post_id)
     if db_comment is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

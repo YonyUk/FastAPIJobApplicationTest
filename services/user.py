@@ -117,6 +117,17 @@ class UserService(
         del fields['password']
         return super()._get_instance(**fields)
     
+    async def _process_before_update_modifier(
+        self,
+        update_data: UserUpdateSchema,
+        existing_model: User,
+        model: User
+    ) -> User:
+        model.created_at = existing_model.created_at
+        model.updated_at = existing_model.updated_at
+        model.is_deleted = existing_model.is_deleted
+        return model
+    
     async def authenticate_user(self,username:str,password:str) -> User | None:
         '''
         authenticate a user
