@@ -2,12 +2,11 @@ from typing import Sequence
 from fastapi import APIRouter,HTTPException,status,Depends,Query
 from models import User
 from schemas import CommentCreateSchema,CommentUpdateSchema,CommentSchema
-from security import get_current_user
+from security import get_current_user,get_authorization_service
 from services import (
     CommentService,
     PostService,
     AuthorizationService,
-    get_authorization_service,
     get_comment_service,
     get_post_service
 )

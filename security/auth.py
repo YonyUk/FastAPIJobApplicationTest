@@ -4,8 +4,7 @@ from datetime import datetime,timedelta
 import datetime as dt
 from fastapi import Depends,HTTPException,status
 from fastapi.security import OAuth2PasswordBearer
-from models import User
-from schemas import TokenDataSchema
+from schemas import TokenDataSchema,UserSchema
 from settings import ENVIRONMENT
 from services import UserService,get_user_service
 
@@ -27,7 +26,7 @@ def create_access_token(data:dict,expires_delta:timedelta | None = None) -> str:
 async def get_current_user(
     token:str = Depends(oauth2_scheme),
     service:UserService = Depends(get_user_service)
-) -> User:
+) -> UserSchema:
     '''
     gets the current user from the authorization token
     '''

@@ -2,8 +2,8 @@ from typing import Sequence
 from fastapi import APIRouter,HTTPException,status,Depends,Query
 from models import User
 from schemas import PostCreateSchema,PostUpdateSchema,PostSchema
-from security import get_current_user
-from services import PostService,get_post_service,AuthorizationService,get_authorization_service
+from security import get_current_user,get_authorization_service
+from services import PostService,get_post_service,AuthorizationService
 from settings import ENVIRONMENT
 
 router = APIRouter(prefix='/posts',tags=['posts'])
@@ -96,7 +96,7 @@ async def update_post(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not post with id "{post_id}" found'
         )
-    if not authorization_service.validate_modification(post_id):
+    if not authorization_service.validate_modification(db_post.author_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Only can modify posts of your own'
@@ -124,7 +124,7 @@ async def delete(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'Not post with id "{post_id}" found'
         )
-    if not authorization_service.validate_deletion(post_id):
+    if not authorization_service.validate_deletion(db_post.author_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Only can delete posts of your own'
