@@ -12,5 +12,5 @@ class TimeLoggerMiddleware(BaseHTTPMiddleware):
     async def dispatch(self,request:Request,call_next):
         time = datetime.now()
         response = await call_next(request)
-        logging.info(f'request at {request.base_url} took {datetime.now() - time}')
+        logging.info(f'request {request.method} at {request.url} resolved in {datetime.now() - time}')
         return response
