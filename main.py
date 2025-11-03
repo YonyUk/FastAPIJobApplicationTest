@@ -36,8 +36,8 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None,run_migrations)
+    # loop = asyncio.get_event_loop()
+    # await loop.run_in_executor(None,run_migrations)
     async with ENGINE.begin() as conn:
         await conn.run_sync(BaseModel.metadata.create_all)
 
