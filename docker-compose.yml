@@ -21,9 +21,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Yony01Uk
-      - POSTGRES_DB=mydb_test
+      - POSTGRES_USER=your_user
+      - POSTGRES_PASSWORD=your_password
+      - POSTGRES_DB=your_db
     ports:
       - "5432:5432"
     healthcheck:
