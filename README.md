@@ -96,7 +96,7 @@ fastapi run # or uvicorn main:app --host <address> --port <port>
 
  - `2`: Enter to project folder and create the file ***.env*** with the same content showed before
 
- - `3`: Open the file ***docker-compose.yml:
+ - `3`: Open the file ***docker-compose.yml***:
 
 ```yml
 # replace this lines with its respective values
@@ -110,11 +110,12 @@ environment:
       test: ["CMD-SHELL", "pg_isready -U your_user -d your_db"]
 ```
 
- - `3`: Build the images:
+ - `4`: Build the images:
 
 ```bash
 docker-compose up -d --build
 ```
 
 
-- `4`: Open your browser in the respective address
+- `5`: Open your browser in the respective address
+
