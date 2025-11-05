@@ -23,7 +23,7 @@ class Post(BaseModel,TimestampMixin,SoftDeleteMixin):
     content:Mapped[str] = mapped_column(String,nullable=False)
     author_id:Mapped[str] = mapped_column(String,ForeignKey('users.id',ondelete='CASCADE'),nullable=False)
 
-    author = relationship('User',back_populates='posts',lazy='joined')
+    author = relationship('User',back_populates='posts',lazy='selectin')
 
     comments = relationship('Comment',back_populates='post',cascade='all, delete-orphan',lazy='selectin')
 

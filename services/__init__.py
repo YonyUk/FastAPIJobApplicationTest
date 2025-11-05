@@ -27,18 +27,14 @@ def get_user_service(repository:UserRepository = Depends(get_user_repository)):
 
 def get_post_service(
     post_repository:PostRepository = Depends(get_post_repository),
-    tag_repository:TagRepository = Depends(get_tag_repository),
-    comment_repository:CommentRepository = Depends(get_comment_repository),
-    user_repository:UserRepository = Depends(get_user_repository)
+    tag_repository:TagRepository = Depends(get_tag_repository)
 ):
     '''
     gets the post service dependency
     '''
     service = PostService(
         post_repository,
-        tag_repository,
-        comment_repository,
-        user_repository
+        tag_repository
     )
     try:
         yield service

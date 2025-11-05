@@ -22,6 +22,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from database import BaseModel
 from models import User,Post,Comment,Tag
+from models.mixins import TimestampMixin,SoftDeleteMixin
 target_metadata = BaseModel.metadata
 
 # other values from the config, defined by the needs of env.py,

@@ -12,4 +12,4 @@ class Tag(BaseModel,TimestampMixin,SoftDeleteMixin):
     name:Mapped[str] = mapped_column(String,unique=True,index=True,nullable=False)
     description:Mapped[str] = mapped_column(String(255),nullable=True)
 
-    posts = relationship('Post',back_populates='tags',secondary='posts_tags',lazy='selectin')
+    posts = relationship('Post',back_populates='tags',secondary='posts_tags')

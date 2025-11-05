@@ -24,16 +24,12 @@ class PostService(
         self,
         post_repository:PostRepository,
         tag_repository:TagRepository,
-        comment_repository:CommentRepository,
-        user_repository:UserRepository
     ):
         '''
         service for 'Post'
         '''
         super().__init__(Post,post_repository,{'tags'},True)
         self._tag_repository = tag_repository
-        self._comment_repository = comment_repository
-        self._user_repository = user_repository
     
     async def _process_tags(self,tags:Sequence[PostTagNestedSchema]) -> Sequence[Tag]:
         result = []
@@ -58,46 +54,40 @@ class PostService(
         model.is_deleted = existing_model.is_deleted
         return model
     
-    async def _comments_to_schema(
+    def _comments_to_schema(
         self,
         comments:Sequence[Comment]
     ) -> Sequence[PostCommentNestedSchema]:
-        result = []
-        for comment in comments:
-            if comment.is_deleted: continue
-            author = await self._user_repository.get_by_id(comment.author_id)
-            result.append(
-                PostCommentNestedSchema(
-                    author=author.username, # type: ignore
-                    content=comment.content
-                )
-            )
-        return result
-    
-    async def _tags_to_schemas(
+        comments_ = filter(lambda comment:not comment.is_deleted,comments)
+        return list(map(
+            lambda comment:PostCommentNestedSchema(
+                author=comment.author.username
+                ,content=comment.content
+                ),
+            comments_
+        ))
+
+    def _tags_to_schemas(
         self,
         tags:Sequence[Tag]
     ) -> Sequence[PostTagNestedSchema]:
-        result = []
-        for tag in tags:
-            result.append(
-                PostTagNestedSchema(
-                    name=tag.name,
-                    description=tag.description
-                )
-            )
-        return result
+        tags_ = filter(lambda tag:not tag.is_deleted,tags)
+        return list(map(
+            lambda tag:PostTagNestedSchema(
+                name=tag.name,
+                description=tag.description
+            ),
+            tags_
+        ))
     
     async def _to_schema(self,model:Post) -> PostSchema:
-        comments = await self._comments_to_schema(model.comments)
-        tags = await self._tags_to_schemas(model.tags)
         return PostSchema(
             created_at=model.created_at,
             updated_at=model.updated_at,
             title=model.title,
             content=model.content,
-            tags=tags,
-            comments=comments,
+            tags=self._tags_to_schemas(model.tags),
+            comments=self._comments_to_schema(model.comments),
             id=model.id,
             author_id=model.author_id
         )
